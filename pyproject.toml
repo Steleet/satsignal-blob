@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "satsignal-blob"
+version = "0.1.0"
+description = "Anchor objects in S3 / R2 / GCS / Azure Blob to BSV via Satsignal. Files stay in your bucket; portable proof sidecars land next to them."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Satsignal" }]
+license = { text = "MIT" }
+keywords = ["satsignal", "s3", "r2", "gcs", "azure-blob", "object-storage", "bsv", "audit", "evidence", "sidecar"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: System :: Archiving",
+]
+dependencies = [
+    "fsspec>=2023.6.0",
+]
+
+[project.optional-dependencies]
+s3    = ["s3fs>=2023.6.0"]
+gcs   = ["gcsfs>=2023.6.0"]
+azure = ["adlfs>=2023.6.0"]
+all   = ["s3fs>=2023.6.0", "gcsfs>=2023.6.0", "adlfs>=2023.6.0"]
+test  = ["pytest>=7"]
+
+[project.scripts]
+satsignal-blob = "satsignal_blob.cli:main"
+
+[project.urls]
+Homepage      = "https://satsignal.cloud"
+Documentation = "https://satsignal.cloud/docs.html#blob"
+Source        = "https://github.com/Steleet/satsignal-blob"
+Issues        = "https://github.com/Steleet/satsignal-blob/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
