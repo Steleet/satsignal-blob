@@ -27,7 +27,7 @@ from ._api import DEFAULT_API_BASE
 from .anchor import BlobAnchorOutcome, anchor_prefix
 
 
-def _read_api_key(arg: Optional[str]) -> str:
+def _read_api_key(arg: Optional[str], *, dry_run: bool = False) -> str:
     if arg:
         return arg
     env = os.environ.get("SATSIGNAL_API_KEY")
@@ -37,6 +37,14 @@ def _read_api_key(arg: Optional[str]) -> str:
         data = sys.stdin.read().strip()
         if data:
             return data
+    # --dry-run does no network call (anchor.py:167 short-circuits
+    # before any HTTP). Don't force an env var that has no consumer in
+    # this code path. Use a deterministic placeholder so downstream
+    # code that interpolates the value (e.g. log lines) gets a clear
+    # marker rather than empty string. Caught by the 2026-05-14
+    # satsignal stress test agent 4 — dry-run should be offline-clean.
+    if dry_run:
+        return "dry-run-no-api-key"
     print(
         "satsignal-blob: missing API key. "
         "Pass --api-key, set SATSIGNAL_API_KEY, or pipe via stdin.",
@@ -80,7 +88,7 @@ def _format_outcome(o: BlobAnchorOutcome, *, as_json: bool) -> str:
 
 
 def _cmd_anchor(args: argparse.Namespace) -> int:
-    api_key = _read_api_key(args.api_key)
+    api_key = _read_api_key(args.api_key, dry_run=args.dry_run)
     counts = {"anchored": 0, "duplicate": 0,
               "skipped_existing": 0, "skipped_sidecar": 0,
               "failed": 0}
